@@ -1,0 +1,8 @@
+# The HTTP endpoint for your Prisma API
+#endpoint: ''
+endpoint: https://us1.prisma.sh/sebastian-efcb23/jobql/dev
+# Points to the file that contains your datamodel
+datamodel: datamodel.prisma
+hooks:
+  post-deploy:
+    - graphql get-schema -p prisma

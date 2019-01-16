@@ -18,9 +18,12 @@
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
+    "graphql-yoga": "^1.17.0",
     "helmet": "^3.15.0",
     "jsonwebtoken": "^8.4.0",
     "morgan": "^1.9.1",
-    "notarealdb": "^0.2.2"
+    "notarealdb": "^0.2.2",
+    "prisma": "^1.24.0",
+    "prisma-binding": "^2.2.14"
   }
 }
