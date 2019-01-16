@@ -11,7 +11,7 @@ class NavBar extends React.Component {
           {loggedIn &&
             <>
               <Link className='navbar-item' to='/jobs/new'>Post Job</Link>
-              <a className='navbar-item' onClick={onLogout}>Logout</a>
+              <a href='/' className='navbar-item' onClick={onLogout}>Logout</a>
             </>
           }
           {!loggedIn &&
