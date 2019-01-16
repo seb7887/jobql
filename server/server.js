@@ -15,6 +15,11 @@ const resolvers = require('./resolvers');
 const schema = new ApolloServer({
   typeDefs,
   resolvers,
+  context: ({ req }) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const { sub } = jwt.verify(token, jwtSecret);
+    return { user: token && db.users.get(sub) };
+  },
   playground: {
     endpoint: '/graphql',
     settings: {

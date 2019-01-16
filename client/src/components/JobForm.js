@@ -14,9 +14,8 @@ class JobForm extends React.Component {
 
   handleClick = async (event) => {
     event.preventDefault();
-    const companyId = 'HJRa-DOuG'; // FIXME
     const { title, description } = this.state;
-    const job = await createJob({ companyId, title, description });
+    const job = await createJob({ title, description });
     this.props.history.push(`/jobs/${job.id}`);
   }
 
