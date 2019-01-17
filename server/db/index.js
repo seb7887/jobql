@@ -1,9 +1,10 @@
-const { DataStore } = require('notarealdb');
+const { Prisma } = require('prisma-binding');
 
-const store = new DataStore('./data');
+const db = new Prisma({
+  typeDefs: './generated/prisma.graphql',
+  endpoint: process.env.PRISMA_ENDPOINT,
+  secret: process.env.PRISMA_SECRET,
+  debug: false
+});
 
-module.exports = {
-  companies: store.collection('companies'),
-  jobs: store.collection('jobs'),
-  users: store.collection('users')
-}
+module.exports = db;

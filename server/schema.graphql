@@ -2,10 +2,25 @@ type Query {
   job(id: ID!): Job
   jobs: [Job]
   company(id: ID!): Company
+  users: [User]
+  me(id: ID!): User
 }
 
 type Mutation {
+  signin(input: SigninInput): AuthPayload
   createJob(input: CreateJobInput): Job
+}
+
+type AuthPayload {
+  user: User!
+  token: String!
+}
+
+type User {
+  id: ID! # -> required
+  company: Company!
+  email: String!
+  password: String!
 }
 
 type Company {
@@ -18,11 +33,16 @@ type Company {
 type Job {
   id: ID! # ! -> required
   title: String
-  company: Company
+  company: Company!
   description: String
 }
 
 input CreateJobInput {
   title: String
   description: String
+}
+
+input SigninInput {
+  email: String
+  password: String
 }

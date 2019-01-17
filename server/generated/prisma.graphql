@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/sebastian-efcb23/jobql/dev
-# timestamp: Wed Jan 16 2019 18:51:53 GMT-0300 (GMT-03:00)
+# timestamp: Thu Jan 17 2019 09:56:53 GMT-0300 (GMT-03:00)
 
 type AggregateCompany {
   count: Int!
@@ -22,6 +22,7 @@ type Company implements Node {
   id: ID!
   name: String!
   description: String!
+  jobs(where: JobWhereInput, orderBy: JobOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Job!]
 }
 
 """A connection to a list of items."""
@@ -35,6 +36,22 @@ type CompanyConnection {
 }
 
 input CompanyCreateInput {
+  name: String!
+  description: String!
+  jobs: JobCreateManyWithoutCompanyInput
+}
+
+input CompanyCreateOneInput {
+  create: CompanyCreateInput
+  connect: CompanyWhereUniqueInput
+}
+
+input CompanyCreateOneWithoutJobsInput {
+  create: CompanyCreateWithoutJobsInput
+  connect: CompanyWhereUniqueInput
+}
+
+input CompanyCreateWithoutJobsInput {
   name: String!
   description: String!
 }
@@ -106,14 +123,50 @@ input CompanySubscriptionWhereInput {
   node: CompanyWhereInput
 }
 
+input CompanyUpdateDataInput {
+  name: String
+  description: String
+  jobs: JobUpdateManyWithoutCompanyInput
+}
+
 input CompanyUpdateInput {
   name: String
   description: String
+  jobs: JobUpdateManyWithoutCompanyInput
 }
 
 input CompanyUpdateManyMutationInput {
   name: String
   description: String
+}
+
+input CompanyUpdateOneRequiredInput {
+  create: CompanyCreateInput
+  connect: CompanyWhereUniqueInput
+  update: CompanyUpdateDataInput
+  upsert: CompanyUpsertNestedInput
+}
+
+input CompanyUpdateOneRequiredWithoutJobsInput {
+  create: CompanyCreateWithoutJobsInput
+  connect: CompanyWhereUniqueInput
+  update: CompanyUpdateWithoutJobsDataInput
+  upsert: CompanyUpsertWithoutJobsInput
+}
+
+input CompanyUpdateWithoutJobsDataInput {
+  name: String
+  description: String
+}
+
+input CompanyUpsertNestedInput {
+  update: CompanyUpdateDataInput!
+  create: CompanyCreateInput!
+}
+
+input CompanyUpsertWithoutJobsInput {
+  update: CompanyUpdateWithoutJobsDataInput!
+  create: CompanyCreateWithoutJobsInput!
 }
 
 input CompanyWhereInput {
@@ -245,6 +298,9 @@ input CompanyWhereInput {
 
   """All values not ending with the given string."""
   description_not_ends_with: String
+  jobs_every: JobWhereInput
+  jobs_some: JobWhereInput
+  jobs_none: JobWhereInput
 }
 
 input CompanyWhereUniqueInput {
@@ -253,7 +309,7 @@ input CompanyWhereUniqueInput {
 
 type Job implements Node {
   id: ID!
-  companyId: String!
+  company: Company!
   title: String!
   description: String!
 }
@@ -269,7 +325,17 @@ type JobConnection {
 }
 
 input JobCreateInput {
-  companyId: String!
+  title: String!
+  description: String!
+  company: CompanyCreateOneWithoutJobsInput!
+}
+
+input JobCreateManyWithoutCompanyInput {
+  create: [JobCreateWithoutCompanyInput!]
+  connect: [JobWhereUniqueInput!]
+}
+
+input JobCreateWithoutCompanyInput {
   title: String!
   description: String!
 }
@@ -286,8 +352,6 @@ type JobEdge {
 enum JobOrderByInput {
   id_ASC
   id_DESC
-  companyId_ASC
-  companyId_DESC
   title_ASC
   title_DESC
   description_ASC
@@ -300,71 +364,19 @@ enum JobOrderByInput {
 
 type JobPreviousValues {
   id: ID!
-  companyId: String!
   title: String!
   description: String!
 }
 
-type JobSubscriptionPayload {
-  mutation: MutationType!
-  node: Job
-  updatedFields: [String!]
-  previousValues: JobPreviousValues
-}
-
-input JobSubscriptionWhereInput {
+input JobScalarWhereInput {
   """Logical AND on all given filters."""
-  AND: [JobSubscriptionWhereInput!]
+  AND: [JobScalarWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [JobSubscriptionWhereInput!]
+  OR: [JobScalarWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [JobSubscriptionWhereInput!]
-
-  """
-  The subscription event gets dispatched when it's listed in mutation_in
-  """
-  mutation_in: [MutationType!]
-
-  """
-  The subscription event gets only dispatched when one of the updated fields names is included in this list
-  """
-  updatedFields_contains: String
-
-  """
-  The subscription event gets only dispatched when all of the field names included in this list have been updated
-  """
-  updatedFields_contains_every: [String!]
-
-  """
-  The subscription event gets only dispatched when some of the field names included in this list have been updated
-  """
-  updatedFields_contains_some: [String!]
-  node: JobWhereInput
-}
-
-input JobUpdateInput {
-  companyId: String
-  title: String
-  description: String
-}
-
-input JobUpdateManyMutationInput {
-  companyId: String
-  title: String
-  description: String
-}
-
-input JobWhereInput {
-  """Logical AND on all given filters."""
-  AND: [JobWhereInput!]
-
-  """Logical OR on all given filters."""
-  OR: [JobWhereInput!]
-
-  """Logical NOT on all given filters combined by AND."""
-  NOT: [JobWhereInput!]
+  NOT: [JobScalarWhereInput!]
   id: ID
 
   """All values that are not equal to given value."""
@@ -405,46 +417,6 @@ input JobWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
-  companyId: String
-
-  """All values that are not equal to given value."""
-  companyId_not: String
-
-  """All values that are contained in given list."""
-  companyId_in: [String!]
-
-  """All values that are not contained in given list."""
-  companyId_not_in: [String!]
-
-  """All values less than the given value."""
-  companyId_lt: String
-
-  """All values less than or equal the given value."""
-  companyId_lte: String
-
-  """All values greater than the given value."""
-  companyId_gt: String
-
-  """All values greater than or equal the given value."""
-  companyId_gte: String
-
-  """All values containing the given string."""
-  companyId_contains: String
-
-  """All values not containing the given string."""
-  companyId_not_contains: String
-
-  """All values starting with the given string."""
-  companyId_starts_with: String
-
-  """All values not starting with the given string."""
-  companyId_not_starts_with: String
-
-  """All values ending with the given string."""
-  companyId_ends_with: String
-
-  """All values not ending with the given string."""
-  companyId_not_ends_with: String
   title: String
 
   """All values that are not equal to given value."""
@@ -527,6 +499,226 @@ input JobWhereInput {
   description_not_ends_with: String
 }
 
+type JobSubscriptionPayload {
+  mutation: MutationType!
+  node: Job
+  updatedFields: [String!]
+  previousValues: JobPreviousValues
+}
+
+input JobSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [JobSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [JobSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [JobSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: JobWhereInput
+}
+
+input JobUpdateInput {
+  title: String
+  description: String
+  company: CompanyUpdateOneRequiredWithoutJobsInput
+}
+
+input JobUpdateManyDataInput {
+  title: String
+  description: String
+}
+
+input JobUpdateManyMutationInput {
+  title: String
+  description: String
+}
+
+input JobUpdateManyWithoutCompanyInput {
+  create: [JobCreateWithoutCompanyInput!]
+  connect: [JobWhereUniqueInput!]
+  set: [JobWhereUniqueInput!]
+  disconnect: [JobWhereUniqueInput!]
+  delete: [JobWhereUniqueInput!]
+  update: [JobUpdateWithWhereUniqueWithoutCompanyInput!]
+  updateMany: [JobUpdateManyWithWhereNestedInput!]
+  deleteMany: [JobScalarWhereInput!]
+  upsert: [JobUpsertWithWhereUniqueWithoutCompanyInput!]
+}
+
+input JobUpdateManyWithWhereNestedInput {
+  where: JobScalarWhereInput!
+  data: JobUpdateManyDataInput!
+}
+
+input JobUpdateWithoutCompanyDataInput {
+  title: String
+  description: String
+}
+
+input JobUpdateWithWhereUniqueWithoutCompanyInput {
+  where: JobWhereUniqueInput!
+  data: JobUpdateWithoutCompanyDataInput!
+}
+
+input JobUpsertWithWhereUniqueWithoutCompanyInput {
+  where: JobWhereUniqueInput!
+  update: JobUpdateWithoutCompanyDataInput!
+  create: JobCreateWithoutCompanyInput!
+}
+
+input JobWhereInput {
+  """Logical AND on all given filters."""
+  AND: [JobWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [JobWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [JobWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  title: String
+
+  """All values that are not equal to given value."""
+  title_not: String
+
+  """All values that are contained in given list."""
+  title_in: [String!]
+
+  """All values that are not contained in given list."""
+  title_not_in: [String!]
+
+  """All values less than the given value."""
+  title_lt: String
+
+  """All values less than or equal the given value."""
+  title_lte: String
+
+  """All values greater than the given value."""
+  title_gt: String
+
+  """All values greater than or equal the given value."""
+  title_gte: String
+
+  """All values containing the given string."""
+  title_contains: String
+
+  """All values not containing the given string."""
+  title_not_contains: String
+
+  """All values starting with the given string."""
+  title_starts_with: String
+
+  """All values not starting with the given string."""
+  title_not_starts_with: String
+
+  """All values ending with the given string."""
+  title_ends_with: String
+
+  """All values not ending with the given string."""
+  title_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  company: CompanyWhereInput
+}
+
 input JobWhereUniqueInput {
   id: ID
 }
@@ -539,23 +731,23 @@ scalar Long
 
 type Mutation {
   createUser(data: UserCreateInput!): User!
-  createCompany(data: CompanyCreateInput!): Company!
   createJob(data: JobCreateInput!): Job!
+  createCompany(data: CompanyCreateInput!): Company!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updateCompany(data: CompanyUpdateInput!, where: CompanyWhereUniqueInput!): Company
   updateJob(data: JobUpdateInput!, where: JobWhereUniqueInput!): Job
+  updateCompany(data: CompanyUpdateInput!, where: CompanyWhereUniqueInput!): Company
   deleteUser(where: UserWhereUniqueInput!): User
-  deleteCompany(where: CompanyWhereUniqueInput!): Company
   deleteJob(where: JobWhereUniqueInput!): Job
+  deleteCompany(where: CompanyWhereUniqueInput!): Company
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  upsertCompany(where: CompanyWhereUniqueInput!, create: CompanyCreateInput!, update: CompanyUpdateInput!): Company!
   upsertJob(where: JobWhereUniqueInput!, create: JobCreateInput!, update: JobUpdateInput!): Job!
+  upsertCompany(where: CompanyWhereUniqueInput!, create: CompanyCreateInput!, update: CompanyUpdateInput!): Company!
   updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
-  updateManyCompanies(data: CompanyUpdateManyMutationInput!, where: CompanyWhereInput): BatchPayload!
   updateManyJobs(data: JobUpdateManyMutationInput!, where: JobWhereInput): BatchPayload!
+  updateManyCompanies(data: CompanyUpdateManyMutationInput!, where: CompanyWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
-  deleteManyCompanies(where: CompanyWhereInput): BatchPayload!
   deleteManyJobs(where: JobWhereInput): BatchPayload!
+  deleteManyCompanies(where: CompanyWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -587,14 +779,14 @@ type PageInfo {
 
 type Query {
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  companies(where: CompanyWhereInput, orderBy: CompanyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Company]!
   jobs(where: JobWhereInput, orderBy: JobOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Job]!
+  companies(where: CompanyWhereInput, orderBy: CompanyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Company]!
   user(where: UserWhereUniqueInput!): User
-  company(where: CompanyWhereUniqueInput!): Company
   job(where: JobWhereUniqueInput!): Job
+  company(where: CompanyWhereUniqueInput!): Company
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
-  companiesConnection(where: CompanyWhereInput, orderBy: CompanyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CompanyConnection!
   jobsConnection(where: JobWhereInput, orderBy: JobOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): JobConnection!
+  companiesConnection(where: CompanyWhereInput, orderBy: CompanyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CompanyConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -605,15 +797,15 @@ type Query {
 
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
-  company(where: CompanySubscriptionWhereInput): CompanySubscriptionPayload
   job(where: JobSubscriptionWhereInput): JobSubscriptionPayload
+  company(where: CompanySubscriptionWhereInput): CompanySubscriptionPayload
 }
 
 type User implements Node {
   id: ID!
   email: String!
   password: String!
-  companyId: String!
+  company: Company!
 }
 
 """A connection to a list of items."""
@@ -629,7 +821,7 @@ type UserConnection {
 input UserCreateInput {
   email: String!
   password: String!
-  companyId: String!
+  company: CompanyCreateOneInput!
 }
 
 """An edge in a connection."""
@@ -648,8 +840,6 @@ enum UserOrderByInput {
   email_DESC
   password_ASC
   password_DESC
-  companyId_ASC
-  companyId_DESC
   updatedAt_ASC
   updatedAt_DESC
   createdAt_ASC
@@ -660,7 +850,6 @@ type UserPreviousValues {
   id: ID!
   email: String!
   password: String!
-  companyId: String!
 }
 
 type UserSubscriptionPayload {
@@ -705,13 +894,12 @@ input UserSubscriptionWhereInput {
 input UserUpdateInput {
   email: String
   password: String
-  companyId: String
+  company: CompanyUpdateOneRequiredInput
 }
 
 input UserUpdateManyMutationInput {
   email: String
   password: String
-  companyId: String
 }
 
 input UserWhereInput {
@@ -843,46 +1031,7 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   password_not_ends_with: String
-  companyId: String
-
-  """All values that are not equal to given value."""
-  companyId_not: String
-
-  """All values that are contained in given list."""
-  companyId_in: [String!]
-
-  """All values that are not contained in given list."""
-  companyId_not_in: [String!]
-
-  """All values less than the given value."""
-  companyId_lt: String
-
-  """All values less than or equal the given value."""
-  companyId_lte: String
-
-  """All values greater than the given value."""
-  companyId_gt: String
-
-  """All values greater than or equal the given value."""
-  companyId_gte: String
-
-  """All values containing the given string."""
-  companyId_contains: String
-
-  """All values not containing the given string."""
-  companyId_not_contains: String
-
-  """All values starting with the given string."""
-  companyId_starts_with: String
-
-  """All values not starting with the given string."""
-  companyId_not_starts_with: String
-
-  """All values ending with the given string."""
-  companyId_ends_with: String
-
-  """All values not ending with the given string."""
-  companyId_not_ends_with: String
+  company: CompanyWhereInput
 }
 
 input UserWhereUniqueInput {

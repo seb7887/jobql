@@ -1,5 +1,5 @@
 import React from 'react';
-import { login } from '../libs/auth';
+import { login } from '../libs/request';
 
 class LoginForm extends React.Component {
   constructor(props) {
@@ -15,8 +15,8 @@ class LoginForm extends React.Component {
   handleClick(event) {
     event.preventDefault();
     const { email, password } = this.state;
-    login(email, password).then((ok) => {
-      if (ok) {
+    login({ email, password }).then((token) => {
+      if (token) {
         this.props.onLogin();
       } else {
         this.setState({ error: true });

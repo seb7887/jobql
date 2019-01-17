@@ -2,18 +2,19 @@ type User {
   id: ID! @unique
   email: String! @unique
   password: String!
-  companyId: String!
+  company: Company!
 }
 
 type Company {
   id: ID! @unique
   name: String!
   description: String!
+  jobs: [Job]
 }
 
 type Job {
   id: ID! @unique,
-  companyId: String!
+  company: Company!
   title: String!
   description: String!
 }
