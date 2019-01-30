@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mutation } from 'react-apollo';
+import { withRouter } from 'react-router';
 import { loginMutation } from '../libs/mutations';
-import { login } from '../libs/request';
 
 const accessTokenKey = 'accessToken';
 
@@ -16,18 +16,6 @@ class LoginForm extends React.Component {
     this.setState({ [name]: value });
   }
 
-  handleClick(event) {
-    event.preventDefault();
-    const { email, password } = this.state;
-    login({ email, password }).then((token) => {
-      if (token) {
-        this.props.onLogin();
-      } else {
-        this.setState({ error: true });
-      }
-    });
-  }
-
   completed() {
     this.props.history.push('/');
   }
@@ -38,7 +26,6 @@ class LoginForm extends React.Component {
       <Mutation
         mutation={loginMutation}
         variables={{ input: { email, password } }}
-        onCompleted={this.completed}
       >
         {(login, { data }) => (
           <form
@@ -47,6 +34,8 @@ class LoginForm extends React.Component {
               const { data: { me: { token } } } = await login();
               if (token) {
                 localStorage.setItem(accessTokenKey, token);
+                this.props.onLogin();
+                this.completed();
               } else {
                 this.setState({ error: true });
               }
@@ -79,4 +68,5 @@ class LoginForm extends React.Component {
   }
 }
 
-export default LoginForm;
+// To access this.props.history we must pass it to withRouter HOC
+export default withRouter(LoginForm);
